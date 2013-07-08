@@ -35,7 +35,7 @@ The java code can hand off what files to process using the following:
 
 
 This allows you to do things like this in oozie:
-     <property>
+    <property>
         <name>mapred.input.dir</name>
         <value>${wf:actionData('hdfs-scan')['INPUTFILES']}</value>
     </property>
