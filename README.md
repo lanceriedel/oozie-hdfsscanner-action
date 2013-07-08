@@ -34,6 +34,12 @@ The java code can hand off what files to process using the following:
     props.store(os, "");
 
 
+This allows you to do things like this in oozie:
+     <property>
+        <name>mapred.input.dir</name>
+        <value>${wf:actionData('hdfs-scan')['INPUTFILES']}</value>
+    </property>
+
 TODO:<br/>
 Write down a file that is the timestamp of the last file to be processed in a ./tickets directory.
 This will be read to see what was last processed and filter during the scan all files that precede (and including) this file timestamp.
