@@ -51,5 +51,7 @@ TODO:<br/>
 Write down a file that is the timestamp of the last file to be processed in a ./tickets directory.
 This will be read to see what was last processed and filter during the scan all files that precede (and including) this file timestamp.
 
+Tests!
+
 
 
