@@ -35,10 +35,12 @@ The java code can hand off what files to process using the following:
 
 
 This allows you to do things like this in oozie:
+<pre>
     <property>
         <name>mapred.input.dir</name>
         <value>${wf:actionData('hdfs-scan')['INPUTFILES']}</value>
     </property>
+</pre>
 
 TODO:<br/>
 Write down a file that is the timestamp of the last file to be processed in a ./tickets directory.
