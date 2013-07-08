@@ -19,19 +19,19 @@ The java code can hand off what files to process using the following:
 
 
 
-String outputProp = System.getProperty("oozie.action.output.properties"); <br/>
-if (outputProp == null) <br/>
-    outputProp = "/tmp/oozie.properties";   <br/>
-File file = new File(outputProp);<br/>
-Properties props = new Properties();  <br/>
-props.setProperty("INPUTFILES", matchedFilesStr.toString()); <br/>
-if (matchedFiles.size()>0)   <br/>
-   props.setProperty("HASFILES", "YES");  <br/>
- else                             <br/>
-   props.setProperty("HASFILES", "NO"); <br/>
-                                        <br/>
-OutputStream os = new FileOutputStream(file);   <br/>
-props.store(os, "");   <br/>
+    String outputProp = System.getProperty("oozie.action.output.properties");
+    if (outputProp == null)
+        outputProp = "/tmp/oozie.properties";
+    File file = new File(outputProp);
+    Properties props = new Properties();
+    props.setProperty("INPUTFILES", matchedFilesStr.toString());
+    if (matchedFiles.size()>0)
+        props.setProperty("HASFILES", "YES");
+    else
+        props.setProperty("HASFILES", "NO");
+
+    OutputStream os = new FileOutputStream(file);
+    props.store(os, "");
 
 
 TODO:<br/>
