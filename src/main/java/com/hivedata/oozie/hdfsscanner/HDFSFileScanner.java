@@ -15,6 +15,7 @@ import java.util.*;
  * Time: 11:42 AM
  * To change this template use File | Settings | File Templates.
  */
+
 public class HDFSFileScanner {
     public static FlumeFileNameFormatter flumeFileNameFormatter = new FlumeFileNameFormatter();
     public static FlumeDirectoryFileNameFormatter flumeDirectoryFileNameFormatter = new FlumeDirectoryFileNameFormatter();
@@ -30,8 +31,9 @@ public class HDFSFileScanner {
      * @throws IOException
      */
     public void scan(String config, String lastdirectory, int numminutes) throws IOException {
-        System.out.println("HDFSFileScanner, config= " + config);
 
+        //TODO: read timestamp
+        System.out.println("HDFSFileScanner, config= " + config);
         System.out.println("HDFSFileScanner, lastdirectory= " + lastdirectory);
         System.out.println("HDFSFileScanner, numminutes= " + numminutes);
 
@@ -79,6 +81,9 @@ public class HDFSFileScanner {
                 }
             }
         }
+
+        //TODO: write down timestamp of last file processed
+
 
         try {
             String outputProp = System.getProperty("oozie.action.output.properties");
