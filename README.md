@@ -15,6 +15,25 @@ This is configured in Flume for writing, then in a FileNameFormatter impl for re
 Right now all files in the last N minutes - triggered by oozie, are processed (see todo).
 
 
+The java code can hand off what files to process using the following:
+
+
+
+String outputProp = System.getProperty("oozie.action.output.properties"); <br/>
+if (outputProp == null) <br/>
+    outputProp = "/tmp/oozie.properties";   <br/>
+File file = new File(outputProp);<br/>
+Properties props = new Properties();  <br/>
+props.setProperty("INPUTFILES", matchedFilesStr.toString()); <br/>
+if (matchedFiles.size()>0)   <br/>
+   props.setProperty("HASFILES", "YES");  <br/>
+ else                             <br/>
+   props.setProperty("HASFILES", "NO"); <br/>
+                                        <br/>
+OutputStream os = new FileOutputStream(file);   <br/>
+props.store(os, "");   <br/>
+
+
 TODO:<br/>
 Write down a file that is the timestamp of the last file to be processed in a ./tickets directory.
 This will be read to see what was last processed and filter during the scan all files that precede (and including) this file timestamp.
