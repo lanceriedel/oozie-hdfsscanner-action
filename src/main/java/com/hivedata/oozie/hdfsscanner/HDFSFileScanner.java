@@ -31,23 +31,28 @@ public class HDFSFileScanner {
      * @throws IOException
      */
     public void scan(String config, String lastdirectory, int numminutes) throws IOException {
+        Configuration configuration = new Configuration();
 
-        //TODO: read timestamp
+        String conf = config;
         System.out.println("HDFSFileScanner, config= " + config);
+
+        configuration.set("fs.default.name", conf);
+        configuration.set("hadoop.tmp.dir", "/tmp");
+        scan(configuration, lastdirectory, numminutes);
+    }
+
+    public void scan(Configuration configuration, String lastdirectory, int numminutes) throws IOException {
+
+        //TODO: read timestamp of last file processed
         System.out.println("HDFSFileScanner, lastdirectory= " + lastdirectory);
         System.out.println("HDFSFileScanner, numminutes= " + numminutes);
-
-        if (lastdirectory.startsWith(config)) {
-            lastdirectory = lastdirectory.substring(config.length());
+        if (lastdirectory.startsWith(configuration.get("fs.default.name"))) {
+            lastdirectory = lastdirectory.substring(configuration.get("fs.default.name").length());
             System.out.println("HDFSFileScanner,TRIMMED lastdirectory= " + lastdirectory);
 
         }
 
-        Configuration configuration = new Configuration();
 
-        String conf = config;
-        configuration.set("fs.default.name", conf);
-        configuration.set("hadoop.tmp.dir", "/tmp");
 
         HDFSFileTools tools = new HDFSFileTools(configuration);
 
@@ -73,6 +78,7 @@ public class HDFSFileScanner {
             for (String entry : nodes) {
                 FileMeta meta = flumeFileNameFormatter.parse(entry);
                 System.out.println("META:" + meta.getFileName() + " : " + meta.getTimestamp().getTime());
+                System.out.println("BACKNMIN:" + backNMinutes + " : Target:" + targetTimestamp);
                 if (meta.getTimestamp().getTime() >= backNMinutes && meta.getTimestamp().getTime() < targetTimestamp) {
                     matchedFiles.add(meta.getFileName());
                     System.out.println("TARGET->" + meta.getFileName());
