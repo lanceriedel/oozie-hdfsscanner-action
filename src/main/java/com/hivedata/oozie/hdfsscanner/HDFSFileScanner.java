@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,6 +18,8 @@ import java.util.*;
  */
 
 public class HDFSFileScanner {
+    final public static Logger logger = Logger.getLogger(HDFSFileScanner.class
+            .getName());
     public static FlumeFileNameFormatter flumeFileNameFormatter = new FlumeFileNameFormatter();
     public static FlumeDirectoryFileNameFormatter flumeDirectoryFileNameFormatter = new FlumeDirectoryFileNameFormatter();
 
@@ -34,39 +37,34 @@ public class HDFSFileScanner {
         Configuration configuration = new Configuration();
 
         String conf = config;
-        System.out.println("HDFSFileScanner, config= " + config);
+        logger.info("HDFSFileScanner, config= " + config);
 
         configuration.set("fs.default.name", conf);
         configuration.set("hadoop.tmp.dir", "/tmp");
         scan(configuration, lastdirectory, numminutes);
     }
 
-    public void scan(Configuration configuration, String lastdirectory, int numminutes) throws IOException {
+    public Properties scan(Configuration configuration, String lastdirectory, int numminutes) throws IOException {
 
         //TODO: read timestamp of last file processed
-        System.out.println("HDFSFileScanner, lastdirectory= " + lastdirectory);
-        System.out.println("HDFSFileScanner, numminutes= " + numminutes);
+        logger.info("HDFSFileScanner, lastdirectory= " + lastdirectory);
+        logger.info("HDFSFileScanner, numminutes= " + numminutes);
         if (lastdirectory.startsWith(configuration.get("fs.default.name"))) {
             lastdirectory = lastdirectory.substring(configuration.get("fs.default.name").length());
-            System.out.println("HDFSFileScanner,TRIMMED lastdirectory= " + lastdirectory);
-
+            logger.info("HDFSFileScanner,TRIMMED lastdirectory= " + lastdirectory);
         }
-
-
 
         HDFSFileTools tools = new HDFSFileTools(configuration);
 
-
         //Last directory timestamp
         FileMeta lastmeta = flumeDirectoryFileNameFormatter.parse(lastdirectory);
-        System.out.println("LASTMETA:" + lastmeta.getFileName() + " : " + lastmeta.getTimestamp().getTime());
+        logger.info("LASTMETA:" + lastmeta.getFileName() + " : " + lastmeta.getTimestamp().getTime());
 
         //maybe just cut off to the day/s and scan?
         String trimmedToDayDirectory = lastmeta.getFileName().substring(0, lastmeta.getFileName().length() - 6);
-        System.out.println("TrimmedToDay-> " + trimmedToDayDirectory);
+        logger.info("TrimmedToDay-> " + trimmedToDayDirectory);
 
         List<String> nodes = tools.scan(trimmedToDayDirectory, null, true);
-
 
         long targetTimestamp = lastmeta.getTimestamp().getTime();
         long backNMinutes = targetTimestamp - (numminutes * 1000 * 60);
@@ -77,11 +75,11 @@ public class HDFSFileScanner {
         if (nodes != null) {
             for (String entry : nodes) {
                 FileMeta meta = flumeFileNameFormatter.parse(entry);
-                System.out.println("META:" + meta.getFileName() + " : " + meta.getTimestamp().getTime());
-                System.out.println("BACKNMIN:" + backNMinutes + " : Target:" + targetTimestamp);
+                logger.info("META:" + meta.getFileName() + " : " + meta.getTimestamp().getTime());
+                logger.info("BACKNMIN:" + backNMinutes + " : Target:" + targetTimestamp);
                 if (meta.getTimestamp().getTime() >= backNMinutes && meta.getTimestamp().getTime() < targetTimestamp) {
                     matchedFiles.add(meta.getFileName());
-                    System.out.println("TARGET->" + meta.getFileName());
+                    logger.info("TARGET->" + meta.getFileName());
                     if (matchedFilesStr.length() > 0) matchedFilesStr.append(",");
                     matchedFilesStr.append(meta.getFileName());
                 }
@@ -91,29 +89,25 @@ public class HDFSFileScanner {
         //TODO: write down timestamp of last file processed
 
 
-        try {
-            String outputProp = System.getProperty("oozie.action.output.properties");
-            if (outputProp == null)
-                outputProp = "/tmp/oozie.properties";
-            File file = new File(outputProp);
-            Properties props = new Properties();
+        String outputProp = System.getProperty("oozie.action.output.properties");
+        if (outputProp == null)
+            outputProp = "/tmp/oozie.properties";
+        File file = new File(outputProp);
+        Properties props = new Properties();
 
 
-            props.setProperty("INPUTFILES", matchedFilesStr.toString());
-            if (matchedFiles.size()>0)
-                props.setProperty("HASFILES", "YES");
-            else
-                props.setProperty("HASFILES", "NO");
+        props.setProperty("INPUTFILES", matchedFilesStr.toString());
+        if (matchedFiles.size() > 0)
+            props.setProperty("HASFILES", "YES");
+        else
+            props.setProperty("HASFILES", "NO");
 
-            OutputStream os = new FileOutputStream(file);
-            props.store(os, "");
-            os.close();
-            System.out.println(file.getAbsolutePath());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        OutputStream os = new FileOutputStream(file);
+        props.store(os, "");
+        os.close();
+        logger.info("PROP FILE:" + file.getAbsolutePath());
+        return props;
     }
-
 
 
     public static void main(String[] args) {
@@ -130,11 +124,11 @@ public class HDFSFileScanner {
             //there may be none now, i used to have async calls to hdfs
 
             Thread.sleep(1000);
-            System.out.println("DONE:");
+            logger.info("DONE:");
             Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
             for (Thread t : threadSet) {
-                System.out.println("\n\n");
-                System.out.println(t.toString());
+                logger.info("\n\n");
+                logger.info(t.toString());
                 // t.interrupt();
                 // t.join();
             }

@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.Before;
 
 import java.net.URI;
+import java.util.Properties;
 import java.util.Random;
 
 /**
@@ -50,13 +51,9 @@ public class HDFSFileScannerTest {
 
 
 
-//        namesystem = cluster.getNamesystem();
-//        fs = (DistributedFileSystem) cluster.getFileSystem();
-//        nn = cluster.getNameNode();
-         //create files
-
         HDFSFileScanner scanner = new HDFSFileScanner();
-        scanner.scan(cluster.getConfiguration(0), testPath, 5);
+        Properties props = scanner.scan(cluster.getConfiguration(0), testPath, 5);
+        org.junit.Assert.assertTrue("Scan produed coorect file", props.getProperty("INPUTFILES").contains("1368058096702"));
     }
 
 }
